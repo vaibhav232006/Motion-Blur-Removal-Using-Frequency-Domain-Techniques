@@ -336,7 +336,10 @@ def render_split_slider(before_rgb: np.ndarray, after_rgb: np.ndarray, height_px
         }});
     </script>
     """
-    components.html(html_code, height=height_px + 8)
+    if hasattr(st, "iframe"):
+        st.iframe(html_code, height=height_px + 8)
+    else:  # older Streamlit versions
+        components.html(html_code, height=height_px + 8)
 
 # -----------------------------------------------------------------------------
 # 4. TOP STUDIO HEADER
@@ -512,13 +515,13 @@ with tab_tri:
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown('<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">01. Ground Truth</span><span class="img-panel-tag">ORIGINAL</span></div></div>', unsafe_allow_html=True)
-        st.image(proc_orig, use_container_width=True)
+        st.image(proc_orig, width="stretch")
     with c2:
         st.markdown(f'<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">02. Motion Blurred</span><span class="img-panel-tag">{kernel_size}px @ {blur_angle}°</span></div></div>', unsafe_allow_html=True)
-        st.image(proc_blur, use_container_width=True)
+        st.image(proc_blur, width="stretch")
     with c3:
         st.markdown(f'<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">03. Restored Output</span><span class="img-panel-tag">K={K:.1e}</span></div></div>', unsafe_allow_html=True)
-        st.image(proc_rest, use_container_width=True)
+        st.image(proc_rest, width="stretch")
 
 with tab_fft:
     f1, f2, f3 = st.columns([1, 1.4, 1.4])
@@ -526,13 +529,13 @@ with tab_fft:
         st.markdown('<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">Point Spread Function</span><span class="img-panel-tag">SPATIAL PSF</span></div></div>', unsafe_allow_html=True)
         psf_vis = cv2.normalize(psf, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
         psf_vis = cv2.resize(psf_vis, (280, 280), interpolation=cv2.INTER_NEAREST)
-        st.image(psf_vis, use_container_width=True)
+        st.image(psf_vis, width="stretch")
     with f2:
         st.markdown('<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">Blurred Log-Spectrum</span><span class="img-panel-tag">|G(u,v)|</span></div></div>', unsafe_allow_html=True)
-        st.image(spec_blur, use_container_width=True)
+        st.image(spec_blur, width="stretch")
     with f3:
         st.markdown('<div class="img-panel"><div class="img-panel-header"><span class="img-panel-title">Restored Log-Spectrum</span><span class="img-panel-tag">|F̂(u,v)|</span></div></div>', unsafe_allow_html=True)
-        st.image(spec_rest, use_container_width=True)
+        st.image(spec_rest, width="stretch")
 
 with tab_math:
     st.markdown("### Frequency-Domain Degradation & Wiener Deconvolution")
@@ -559,12 +562,12 @@ ex1.download_button(
     data=enc_rest.tobytes(),
     file_name="optix_restored.png",
     mime="image/png",
-    use_container_width=True
+    width="stretch"
 )
 ex2.download_button(
     "⬇️ Export Blurred PNG",
     data=enc_blur.tobytes(),
-    file_name="optix_blurred.png",
     mime="image/png",
-    use_container_width=True
+    width="stretch"
 )
+ex3.caption("Exports are generated in-memory, so nothing is written to the server's disk.")
